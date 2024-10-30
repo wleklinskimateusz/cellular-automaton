@@ -1,6 +1,13 @@
+[lib]
+
 [package]
 name = "cellular-automaton"
 version = "0.1.0"
 edition = "2021"
+
+license = "MIT"
+description = "Library that handles Elementary Cellular Automata"
+repository = "hhttps://github.com/wleklinskimateusz/cellular-automaton" # Link to the source repository (if available)
+readme = "README.md"
 
 [dependencies]
