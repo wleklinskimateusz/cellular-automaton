@@ -1,7 +1,7 @@
 [lib]
 
 [package]
-name = "cellular-automaton"
+name = "elementary-cellular-automaton"
 version = "0.1.0"
 edition = "2021"
 
