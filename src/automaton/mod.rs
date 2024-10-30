@@ -4,27 +4,29 @@ pub struct Automaton {
 }
 
 fn detect_pattern(fields: u128, center_index: u8) -> u8 {
-    // For index 3 in 0b101, we want pattern 001
     let left = if center_index == 127 {
-        0 // Right edge, treat as 0
+        0
     } else {
-        (fields >> (center_index + 1)) & 1 // Read the bit to the right
+        (fields >> (center_index + 1)) & 1
     };
 
-    let center = (fields >> center_index) & 1; // Read the center bit
+    let center = (fields >> center_index) & 1;
 
     let right = if center_index == 0 {
-        0 // Left edge, treat as 0
+        0
     } else {
-        (fields >> (center_index - 1)) & 1 // Read the bit to the left
+        (fields >> (center_index - 1)) & 1
     };
 
-    // Build pattern in correct order: left|center|right
     ((left << 2) | (center << 1) | right) as u8
 }
 
 fn apply_rule(pattern: u8, rule: u8) -> u8 {
     (rule >> pattern) & 1
+}
+
+fn find_nth_bit(number: u128, n: usize) -> u8 {
+    (number >> n) as u8 & 1
 }
 
 impl Automaton {
@@ -43,6 +45,14 @@ impl Automaton {
             new_fields |= (new_bit as u128) << i;
         }
         self.fields = new_fields;
+    }
+
+    pub fn to_vector(&self) -> Vec<u8> {
+        let mut vector = vec![0; 128];
+        for i in 0..128 {
+            vector[127 - i] = find_nth_bit(self.fields, i);
+        }
+        vector
     }
 }
 
@@ -141,5 +151,49 @@ mod tests {
 
         automaton.update();
         assert_eq!(automaton.fields, 0b001);
+    }
+
+    #[test]
+    fn test_to_vector() {
+        let automaton = Automaton::new(30, 0b101);
+        let vector = automaton.to_vector();
+        let mut expected = vec![0; 128];
+        expected[125] = 1;
+        expected[126] = 0;
+        expected[127] = 1;
+
+        assert_eq!(vector, expected);
+    }
+
+    #[test]
+    fn test_to_vector_2() {
+        let automaton = Automaton::new(30, 0b1101);
+        let vector = automaton.to_vector();
+        let mut expected = vec![0; 128];
+        expected[124] = 1;
+        expected[125] = 1;
+        expected[126] = 0;
+        expected[127] = 1;
+
+        assert_eq!(vector, expected);
+    }
+
+    #[test]
+    fn test_max_vector() {
+        let automaton = Automaton::new(30, u128::MAX);
+        let vector = automaton.to_vector();
+        let expected = vec![1; 128];
+
+        assert_eq!(vector, expected);
+    }
+
+    #[test]
+    fn test_1_with_0s() {
+        let automaton = Automaton::new(30, 0x80000000000000000000000000000000);
+        let vector = automaton.to_vector();
+        let mut expected = vec![0; 128];
+        expected[0] = 1;
+
+        assert_eq!(vector, expected);
     }
 }
