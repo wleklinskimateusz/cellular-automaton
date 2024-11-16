@@ -68,6 +68,27 @@ impl Automaton {
 mod tests {
     use super::*;
 
+    use std::{fs::OpenOptions, io::Write, time::Instant};
+
+    #[test]
+    fn bench_update() {
+        let mut automaton = Automaton::new(30, 0b101, true);
+        let start = Instant::now();
+        {
+            for _ in 0..10000 {
+                automaton.update();
+            }
+        }
+        let duration = start.elapsed();
+        // append to file if it exists or create it
+        let mut file = OpenOptions::new()
+            .write(true)
+            .append(true)
+            .open("bench_update.txt")
+            .unwrap();
+        writeln!(file, "{:?}", duration).unwrap();
+    }
+
     #[test]
     fn correctly_detect_pattern() {
         let automaton = Automaton::new(30, 0b101, false);
